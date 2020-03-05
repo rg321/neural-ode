@@ -6,7 +6,7 @@ import numpy as np
 from tqdm import tqdm
 
 import neuralode.adjoint as adj
-from experiments.data_helper import get_mnist_loaders, get_cifar_loaders
+from experiments.data_helper import get_mnist_loaders, get_cifar_loaders, get_gz_loaders
 from experiments.resnet import *
 
 
@@ -15,6 +15,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--data', type=str, default='mnist' )
 parser.add_argument('--max_epochs', type=int, default=100)
 parser.add_argument('--batch_size', type=int, default=128)
+parser.add_argument('--test_size', type=int, default=1000)
 parser.add_argument('--num_res_blocks', type=int, default=6)
 parser.add_argument('--optimizer', type=str, default='adam')
 parser.add_argument('--lr', type=float, default=1e-3)
@@ -62,7 +63,7 @@ if __name__ == '__main__':
 
     use_continuous_ode = args.use_ode
     print("Use ode training ", use_continuous_ode)
-    test_size = 1000
+    # test_size = 1000
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     if args.data == 'cifar':
         number_channel = 3
@@ -76,10 +77,12 @@ if __name__ == '__main__':
         feat = nn.Sequential(*[ResBlock(64, 64) for _ in range(args.num_res_blocks)])
     model = ContinuousResNet(feat, channels=number_channel).to(device)
     if args.data == 'cifar':
-        train_loader, test_loader, _ = get_cifar_loaders(batch_size=args.batch_size, test_batch_size=test_size)
+        train_loader, test_loader, _ = get_cifar_loaders(batch_size=args.batch_size, test_batch_size=args.test_size)
+    elif args.data == 'gz':
+        train_loader, test_loader, train_eval_loader = get_gz_loaders(batch_size=args.batch_size, test_batch_size=args.test_size)
     else:
         train_loader, test_loader, train_eval_loader\
-            = get_mnist_loaders(batch_size=args.batch_size, test_batch_size=test_size, perc=1.0)
+            = get_mnist_loaders(batch_size=args.batch_size, test_batch_size=args.test_size, perc=1.0)
 
     if args.optimizer.lower() == 'adam':
         optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=5e-4 if args.weight_decay else 0)

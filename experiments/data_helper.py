@@ -108,6 +108,49 @@ def get_mnist_loaders(batch_size=128, test_batch_size=1000, perc=1.0):
 
     return train_loader, test_loader, train_eval_loader
 
+def get_gz_loaders(batch_size=128, test_batch_size=1000, perc=1.0):
+    transform_train = transforms.Compose([
+            # transforms.RandomCrop(28, padding=4),
+            transforms.Grayscale(num_output_channels=1),
+            # transforms.CenterCrop((64,64)),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5,), (0.5,)),
+        ])
+
+    transform_test = transforms.Compose([
+        transforms.Grayscale(num_output_channels=1),
+        # transforms.CenterCrop((64,64)),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5,), (0.5,)),
+    ])
+
+    gz_root = '/mnt/f/IITH/research/physics/galaxy_zoo/\
+                GalaxyClassification/imageFolder_small'
+
+    train_loader = DataLoader(
+        datasets.ImageFolder(root=gz_root
+            # ,train=True, download=True
+            , transform=transform_train
+        ),batch_size=batch_size,
+        shuffle=True, num_workers=2, drop_last=True
+    )
+
+    train_eval_loader = DataLoader(
+        datasets.ImageFolder(root=gz_root
+            # , train=True, download=True
+            , transform=transform_test
+            ),batch_size=test_batch_size, shuffle=True, num_workers=2, drop_last=True
+    )
+
+    test_loader = DataLoader(
+        datasets.ImageFolder(root=gz_root
+            # , train=False, download=True
+            , transform=transform_test
+            ),batch_size=test_batch_size, shuffle=False, num_workers=2, drop_last=True
+    )
+
+    return train_loader, test_loader, train_eval_loader
+
 
 def get_cifar_loaders(batch_size=128, test_batch_size=1000):
 
