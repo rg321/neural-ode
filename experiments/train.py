@@ -79,7 +79,7 @@ if __name__ == '__main__':
     if args.data == 'cifar':
         train_loader, test_loader, _ = get_cifar_loaders(batch_size=args.batch_size, test_batch_size=args.test_size)
     elif args.data == 'gz':
-        train_loader, test_loader, train_eval_loader = get_gz_loaders(batch_size=args.batch_size, test_batch_size=args.test_size)
+        train_loader, test_loader = get_gz_loaders(batch_size=args.batch_size, test_batch_size=args.test_size)
     else:
         train_loader, test_loader, train_eval_loader\
             = get_mnist_loaders(batch_size=args.batch_size, test_batch_size=args.test_size, perc=1.0)

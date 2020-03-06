@@ -1,7 +1,7 @@
 import csv
 import numpy as np
 
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
@@ -124,32 +124,36 @@ def get_gz_loaders(batch_size=128, test_batch_size=1000, perc=1.0):
         transforms.Normalize((0.5,), (0.5,)),
     ])
 
-    gz_root = '/mnt/f/IITH/research/physics/galaxy_zoo/\
-                GalaxyClassification/imageFolder_small'
+    gz_root = '/mnt/f/IITH/research/physics/galaxy_zoo/GalaxyClassification/imageFolder_small'
+    gz_root = '/mnt/f/IITH/research/physics/galaxy_zoo/GalaxyClassification/imageFolder_small'
 
-    train_loader = DataLoader(
-        datasets.ImageFolder(root=gz_root
+    gz_dataset = datasets.ImageFolder(root=gz_root
             # ,train=True, download=True
             , transform=transform_train
-        ),batch_size=batch_size,
+        )
+
+    total_images = len(gz_dataset)
+
+    train_dataset, test_dataset = random_split(gz_dataset,[
+        int(0.9*total_images),
+        int(0.1*total_images)
+    ])
+
+    train_loader = DataLoader(train_dataset
+        ,batch_size=batch_size,
         shuffle=True, num_workers=2, drop_last=True
     )
 
-    train_eval_loader = DataLoader(
-        datasets.ImageFolder(root=gz_root
-            # , train=True, download=True
-            , transform=transform_test
-            ),batch_size=test_batch_size, shuffle=True, num_workers=2, drop_last=True
+    # train_eval_loader = DataLoader(validation_dataset
+    #     ,batch_size=test_batch_size, shuffle=True, num_workers=2, drop_last=True
+    # )
+
+    test_loader = DataLoader(test_dataset
+        ,batch_size=test_batch_size,
+        shuffle=False, num_workers=2, drop_last=True
     )
 
-    test_loader = DataLoader(
-        datasets.ImageFolder(root=gz_root
-            # , train=False, download=True
-            , transform=transform_test
-            ),batch_size=test_batch_size, shuffle=False, num_workers=2, drop_last=True
-    )
-
-    return train_loader, test_loader, train_eval_loader
+    return train_loader, test_loader
 
 
 def get_cifar_loaders(batch_size=128, test_batch_size=1000):
