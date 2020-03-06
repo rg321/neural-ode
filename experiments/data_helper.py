@@ -4,6 +4,7 @@ import numpy as np
 from torch.utils.data import DataLoader, random_split
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
+from torch.utils.data.sampler import SubsetRandomSampler
 
 class DataHelper():
     def __init__(self, sequence_max_length=1024):
@@ -112,7 +113,7 @@ def get_gz_loaders(batch_size=128, test_batch_size=1000, perc=1.0):
     transform_train = transforms.Compose([
             # transforms.RandomCrop(28, padding=4),
             transforms.Grayscale(num_output_channels=1),
-            # transforms.CenterCrop((64,64)),
+            transforms.CenterCrop((100,100)),
             transforms.ToTensor(),
             transforms.Normalize((0.5,), (0.5,)),
         ])
@@ -132,25 +133,46 @@ def get_gz_loaders(batch_size=128, test_batch_size=1000, perc=1.0):
             , transform=transform_train
         )
 
-    total_images = len(gz_dataset)
+    # total_images = len(gz_dataset)
 
-    train_dataset, test_dataset = random_split(gz_dataset,[
-        int(0.9*total_images),
-        int(0.1*total_images)
-    ])
+    # train_dataset, test_dataset = random_split(gz_dataset,[
+    #     int(0.9*total_images),
+    #     int(0.1*total_images)
+    # ])
 
-    train_loader = DataLoader(train_dataset
+    split = .9
+    shuffle_dataset = True
+    random_seed= 42
+
+    # Creating data indices for training and validation splits:
+    dataset_size = len(gz_dataset)
+    indices = list(range(dataset_size))
+    split = int(np.floor(split * dataset_size))
+    if shuffle_dataset :
+        np.random.seed(random_seed)
+        np.random.shuffle(indices)
+    train_indices, test_indices = indices[:split], indices[split:]
+
+    # Creating PT data samplers and loaders:
+    train_sampler = SubsetRandomSampler(train_indices)
+    test_sampler = SubsetRandomSampler(test_indices)
+
+
+
+    train_loader = DataLoader(gz_dataset
         ,batch_size=batch_size,
-        shuffle=True, num_workers=2, drop_last=True
+        shuffle=False, num_workers=1, drop_last=True
+        ,sampler=train_sampler
     )
 
     # train_eval_loader = DataLoader(validation_dataset
     #     ,batch_size=test_batch_size, shuffle=True, num_workers=2, drop_last=True
     # )
 
-    test_loader = DataLoader(test_dataset
+    test_loader = DataLoader(gz_dataset
         ,batch_size=test_batch_size,
-        shuffle=False, num_workers=2, drop_last=True
+        shuffle=False, num_workers=1, drop_last=True
+        ,sampler=test_sampler
     )
 
     return train_loader, test_loader
