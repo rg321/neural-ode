@@ -113,7 +113,7 @@ def get_gz_loaders(batch_size=128, test_batch_size=1000, perc=1.0):
     transform_train = transforms.Compose([
             # transforms.RandomCrop(28, padding=4),
             transforms.Grayscale(num_output_channels=1),
-            transforms.CenterCrop((100,100)),
+            transforms.CenterCrop((75,75)),
             transforms.ToTensor(),
             transforms.Normalize((0.5,), (0.5,)),
         ])
@@ -125,8 +125,8 @@ def get_gz_loaders(batch_size=128, test_batch_size=1000, perc=1.0):
         transforms.Normalize((0.5,), (0.5,)),
     ])
 
-    gz_root = '/mnt/f/IITH/research/physics/galaxy_zoo/GalaxyClassification/imageFolder_small'
-    gz_root = '/mnt/f/IITH/research/physics/galaxy_zoo/GalaxyClassification/imageFolder_small'
+    gz_root = '/mnt/f/IITH/research/physics/galaxy_zoo/GalaxyClassification/imageFolder_medium'
+    # gz_root = '/content/drive/My Drive/imageFolder_medium'
 
     gz_dataset = datasets.ImageFolder(root=gz_root
             # ,train=True, download=True
