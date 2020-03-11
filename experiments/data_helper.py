@@ -125,8 +125,8 @@ def get_gz_loaders(batch_size=128, test_batch_size=1000, perc=1.0):
         transforms.Normalize((0.5,), (0.5,)),
     ])
 
-    gz_root = '/mnt/f/IITH/research/physics/galaxy_zoo/GalaxyClassification/imageFolder_medium'
-    # gz_root = '/content/drive/My Drive/imageFolder_medium'
+    # gz_root = '/mnt/f/IITH/research/physics/galaxy_zoo/GalaxyClassification/imageFolder_medium'
+    gz_root = '/content/drive/My Drive/imageFolder'
 
     gz_dataset = datasets.ImageFolder(root=gz_root
             # ,train=True, download=True
